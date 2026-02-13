@@ -12,7 +12,8 @@
     "sync-blog": "node instagram-scraper-mcp/crawl_blog.js",
     "auto-map": "node instagram-scraper-mcp/ocr_match.js",
     "sync-time": "node instagram-scraper-mcp/sync_timestamps.js",
-    "admin-server": "node admin-server.js"
+    "admin-server": "node admin-server.js",
+    "postinstall": "cd instagram-scraper-mcp && npm install"
   },
   "dependencies": {
     "@aws-sdk/client-ec2": "^3.984.0",
