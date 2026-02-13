@@ -1,0 +1,60 @@
+name: Deploy to EC2 Self-Hosted Runner
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Create .env file from Secrets
+      run: |
+        echo "DATABASE_HOST=${{ secrets.DATABASE_HOST }}" > .env
+        echo "DATABASE_PORT=${{ secrets.DATABASE_PORT }}" >> .env
+        echo "DATABASE_NAME=${{ secrets.DATABASE_NAME }}" >> .env
+        echo "DATABASE_USER=${{ secrets.DATABASE_USER }}" >> .env
+        echo "DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}" >> .env
+        echo "PORT=3001" >> .env
+        
+        # AWS Secrets
+        echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}" >> .env
+        echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}" >> .env
+        echo "AWS_REGION=ap-south-1" >> .env
+        echo "S3_BUCKET_NAME=nibsnetwork-images" >> .env
+        
+        # Instagram Secrets
+        echo "INSTAGRAM_ACCESS_TOKEN=${{ secrets.INSTAGRAM_ACCESS_TOKEN }}" >> .env
+        echo "INSTAGRAM_BUSINESS_ACCOUNT_ID=${{ secrets.INSTAGRAM_BUSINESS_ACCOUNT_ID }}" >> .env
+        
+        # Frontend Config (Needed for build)
+        echo "VITE_API_URL=${{ secrets.VITE_API_URL }}" >> .env
+
+    - name: Build Frontend
+      run: npm run build
+
+    - name: Start/Restart Application with PM2
+      run: |
+        if pm2 list | grep -q "nibs-server"; then
+          pm2 restart nibs-server
+        else
+          pm2 start admin-server.js --name nibs-server
+        fi
+        pm2 save

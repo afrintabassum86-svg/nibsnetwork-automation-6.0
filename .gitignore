@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+instagram-scraper-mcp/node_modules/
+
+# Environment files (contain secrets)
+**/.env
+.env.local
+
+# SSH Key (KEEP SAFE!)
+*.pem
+
+# Browser session data
+instagram-scraper-mcp/browser_session/
+
+# Build output
+dist/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Test files
+test-aws.js
+setup-aws.js
+setup-rds.js
+setup-ec2.js
+init-db.js
