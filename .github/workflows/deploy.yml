@@ -52,6 +52,7 @@ jobs:
 
     - name: Start/Restart Application with PM2
       run: |
+        npm install -g pm2
         if pm2 list | grep -q "nibs-server"; then
           pm2 restart nibs-server
         else
